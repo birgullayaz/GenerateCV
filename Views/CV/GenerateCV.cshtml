@@ -1,0 +1,208 @@
+@{
+    ViewData["Title"] = "Generate CV";
+}
+
+@model List<GenerateCV.Models.School>
+
+<div class="container mt-4">
+    <form method="post" asp-controller="CV" asp-action="DownloadPdf" enctype="multipart/form-data">
+        <!-- Photo and Name Header -->
+        <div class="row mb-5">
+            <div class="col-md-3 text-center">
+                <div class="profile-photo-container">
+                    <img id="profile-photo" src="/images/default-avatar.png" class="rounded-circle img-fluid" 
+                         style="width: 150px; height: 150px; object-fit: cover;">
+                    <div class="mt-2">
+                        <input type="file" id="photo" name="photo" class="form-control" 
+                               accept="image/*" onchange="previewImage(this)" 
+                               style="display: none;">
+                        <label for="photo" class="btn btn-primary">
+                            <i class="fas fa-upload"></i> Fotoğraf Seç
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-9 d-flex align-items-center">
+                <div class="w-100">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <input type="text" class="form-control form-control-lg" placeholder="Ad" name="name" required>
+                        </div>
+                        <div class="col-md-6">
+                            <input type="text" class="form-control form-control-lg" placeholder="Soyad" name="surname" required>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Personal Information -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <input type="email" 
+                       class="form-control" 
+                       placeholder="Email" 
+                       name="email" 
+                       value="@ViewData["UserEmail"]" 
+                       readonly>
+            </div>
+            <div class="col-md-6">
+                <input type="tel" class="form-control" placeholder="Telephone" name="telephone" required>
+            </div>
+        </div>
+
+        <!-- Education -->
+        <h3>Education</h3>
+        <div id="education-container">
+            <div class="education-entry mb-4">
+                <div class="row">
+                    <div class="col-md-6">
+                        <input type="text" class="form-control" placeholder="School Name" name="schools[0].name">
+                    </div>
+                    <div class="col-md-6">
+                        <input type="text" class="form-control" placeholder="Department" name="schools[0].department">
+                    </div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col-md-6">
+                        <input type="date" class="form-control" placeholder="Start Date" name="schools[0].startDate">
+                    </div>
+                    <div class="col-md-6">
+                        <input type="date" class="form-control" placeholder="Finish Date" name="schools[0].finishDate">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <button type="button" class="btn btn-secondary mb-4" onclick="addEducation()">Add More Education</button>
+
+        <!-- Experience -->
+        <h3>İş Deneyimleri</h3>
+        <div id="experience-container">
+            <div class="experience-entry mb-4">
+                <div class="row">
+                    <div class="col-md-6">
+                        <input type="text" class="form-control" placeholder="Şirket Adı" name="experiences[0].Company" required>
+                    </div>
+                    <div class="col-md-6">
+                        <input type="text" class="form-control" placeholder="Yıl" name="experiences[0].Year" required>
+                    </div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col-12">
+                        <textarea class="form-control" placeholder="İş Detayları" name="experiences[0].Details" rows="3"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <button type="button" class="btn btn-secondary mb-4" onclick="addExperience()">Yeni İş Deneyimi Ekle</button>
+
+        <!-- Yetenekler -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <h3>Yetenekler</h3>
+                <div class="form-group">
+                    <input type="text" 
+                           class="form-control" 
+                           name="skills" 
+                           placeholder="Yeteneklerinizi virgülle ayırarak yazın (örn: C#, SQL, JavaScript)"
+                           data-bs-toggle="tooltip"
+                           data-bs-placement="top"
+                           title="Yeteneklerinizi virgülle ayırarak yazın">
+                    <small class="form-text text-muted">Yeteneklerinizi virgülle ayırarak yazın (örn: C#, SQL, JavaScript)</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <button type="submit" class="btn btn-primary">Generate and send PDF</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        function previewImage(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('profile-photo').src = e.target.result;
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        let educationCount = 0;
+        let experienceCount = 0;
+
+        function addEducation() {
+            educationCount++;
+            const container = document.getElementById('education-container');
+            const newEducation = `
+                <div class="education-entry mb-4">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <input type="text" class="form-control" placeholder="School Name" name="schools[${educationCount}].name">
+                        </div>
+                        <div class="col-md-6">
+                            <input type="text" class="form-control" placeholder="Department" name="schools[${educationCount}].department">
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <div class="col-md-6">
+                            <input type="date" class="form-control" placeholder="Start Date" name="schools[${educationCount}].startDate">
+                        </div>
+                        <div class="col-md-6">
+                            <input type="date" class="form-control" placeholder="Finish Date" name="schools[${educationCount}].finishDate">
+                        </div>
+                    </div>
+                </div>`;
+            container.insertAdjacentHTML('beforeend', newEducation);
+        }
+
+        function addExperience() {
+            experienceCount++;
+            const container = document.getElementById('experience-container');
+            const newExperience = `
+                <div class="experience-entry mb-4">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <input type="text" class="form-control" placeholder="Şirket Adı" name="experiences[${experienceCount}].Company">
+                        </div>
+                        <div class="col-md-6">
+                            <input type="text" class="form-control" placeholder="Yıl" name="experiences[${experienceCount}].Year">
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <div class="col-12">
+                            <textarea class="form-control" placeholder="İş Detayları" name="experiences[${experienceCount}].Details" rows="3"></textarea>
+                        </div>
+                    </div>
+                </div>`;
+            container.insertAdjacentHTML('beforeend', newExperience);
+        }
+    </script>
+
+    <style>
+        .profile-photo-container {
+            position: relative;
+            overflow: hidden;
+            border-radius: 50%;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .form-control-lg {
+            font-size: 1.5rem;
+            border: none;
+            border-bottom: 2px solid #dee2e6;
+            border-radius: 0;
+            padding: 0.5rem 0;
+        }
+
+        .form-control-lg:focus {
+            box-shadow: none;
+            border-color: #0d6efd;
+        }
+    </style>
+}
